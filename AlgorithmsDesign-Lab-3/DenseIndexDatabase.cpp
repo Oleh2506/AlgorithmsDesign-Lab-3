@@ -192,14 +192,14 @@ void DenseIndexDatabase::deleteRecordByKey() {
 		int inBlockIndex = doBinarySearch(currIndexBlock, key, indexComparisonsNumber);
 		if (inBlockIndex == -1) {
 			int overflowComparisonsNumber = 0;
-			int indexInBlock = doBinarySearch(overflowArea_, key, overflowComparisonsNumber);
-			if (indexInBlock == -1) {
+			int indexInOverflow = doBinarySearch(overflowArea_, key, overflowComparisonsNumber);
+			if (indexInOverflow == -1) {
 				cout << "Unfortunately, the database does not contain the record with entered key\n";
 			}
 			else {
-				string temp = mainDatabase_[getMainIndex(overflowArea_[indexInBlock])];
+				string temp = mainDatabase_[getMainIndex(overflowArea_[indexInOverflow])];
 				temp[temp.length() - 1] = '0';
-				mainDatabase_[getMainIndex(overflowArea_[indexInBlock])] = temp;
+				mainDatabase_[getMainIndex(overflowArea_[indexInOverflow])] = temp;
 				mainUpdate();
 				vector<string> newOverflow;
 				for (int i = 0; i < overflowArea_.size(); i++) {
@@ -247,12 +247,12 @@ void DenseIndexDatabase::findRecordByKey() {
 		int inBlockIndex = doBinarySearch(currIndexBlock, key, indexComparisonsNumber);
 		if (inBlockIndex == -1) {
 			int overflowComparisonsNumber = 0;
-			inBlockIndex = doBinarySearch(overflowArea_, key, overflowComparisonsNumber);
-			if (inBlockIndex == -1) {
+			int inOverflowIndex = doBinarySearch(overflowArea_, key, overflowComparisonsNumber);
+			if (inOverflowIndex == -1) {
 				cout << "Unfortunately, the database does not contain the record with entered key\n";
 			}
 			else {
-				string temp = mainDatabase_[getMainIndex(overflowArea_[inBlockIndex])];
+				string temp = mainDatabase_[getMainIndex(overflowArea_[inOverflowIndex])];
 				temp.erase(0, temp.find(inRecordDelimiter) + 1);
 				temp.erase(temp.find(inRecordDelimiter), temp.length() - temp.find(inRecordDelimiter));
 				cout << "The record has been successfully found, its value is: " << temp << "\n";
@@ -283,24 +283,24 @@ void DenseIndexDatabase::updateRecordByKey()
 	else {
 		vector<string> blockToFind = indexArea_[key % numOfBlocks_];
 		int indexComparisonsNumber = 0;
-		int indexInBlock = doBinarySearch(blockToFind, key, indexComparisonsNumber);
-		if (indexInBlock == -1) {
+		int inBlockIndex = doBinarySearch(blockToFind, key, indexComparisonsNumber);
+		if (inBlockIndex == -1) {
 			int overflowComparisonsNumber = 0;
-			int indexInBlock = doBinarySearch(overflowArea_, key, overflowComparisonsNumber);
-			if (indexInBlock == -1) {
+			int inOverflowIndex = doBinarySearch(overflowArea_, key, overflowComparisonsNumber);
+			if (inOverflowIndex == -1) {
 				cout << "Unfortunately, the database does not contain the record with entered key\n";
 			}
 			else {
-				string newStr = to_string(getMainIndex(overflowArea_[indexInBlock])) + "," + val + "," + "1";
-				mainDatabase_[getMainIndex(overflowArea_[indexInBlock])] = newStr;
+				string newStr = to_string(getMainIndex(overflowArea_[inOverflowIndex])) + inRecordDelimiter + val + inRecordDelimiter + "1";
+				mainDatabase_[getMainIndex(overflowArea_[inOverflowIndex])] = newStr;
 				mainUpdate();
 				cout << "The record has been successfully updated!\n";
 				cout << "The number of comparisons is: " << indexComparisonsNumber + overflowComparisonsNumber << "\n";
 			}
 		}
 		else {
-			string newStr = to_string(getMainIndex(blockToFind[indexInBlock])) + "," + val + "," + "1";
-			mainDatabase_[getMainIndex(blockToFind[indexInBlock])] = newStr;
+			string newStr = to_string(getMainIndex(blockToFind[inBlockIndex])) + inRecordDelimiter + val + inRecordDelimiter + "1";
+			mainDatabase_[getMainIndex(blockToFind[inBlockIndex])] = newStr;
 			mainUpdate();
 			cout << "The record has been successfully updated!\n";
 			cout << "The number of comparisons is: " << indexComparisonsNumber << "\n";
